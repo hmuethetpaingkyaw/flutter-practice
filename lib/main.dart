@@ -1,3 +1,5 @@
+import 'package:counter_get_x/database/note_database.dart';
+import 'package:counter_get_x/screens/home.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -10,44 +12,21 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: Counter(),
-    );
-  }
-}
-
-class Counter extends StatelessWidget {
-  const Counter({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    RxInt _counter = 0.obs;
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('GetX Counter'),
-      ),
-      body: Center(
-        child: Column(
-          children: [
-            Obx(
-              () => Text(
-                'Counter is $_counter',
-                style: const TextStyle(fontSize: 30),
-              ),
-            ),
-            IconButton(
-                onPressed: () {
-                  _counter++;
-                },
-                icon: const Icon(Icons.add)),
-            IconButton(
-                onPressed: () {
-                  _counter--;
-                },
-                icon: const Icon(Icons.remove))
-          ],
+    return GetMaterialApp(
+      home: FutureBuilder<NoteDatabase>(
+        future: $FloorNoteDatabase.databaseBuilder('note.db').build(),
+        builder: (context, data) {
+          if(data.hasData) {
+            Get.put(data.data!.noteDao);
+            return Home();
+          }
+          else if(data.hasError) {
+            return const Text('Error');
+          } else {
+            return const Text('Loading');
+          }
+        },
         ),
-      ),
     );
   }
 }
